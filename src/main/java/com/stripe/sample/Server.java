@@ -99,9 +99,6 @@ public class Server {
     port(4242);
     staticFiles.externalLocation(Paths.get("public").toAbsolutePath().toString());
 
-    // This is your test secret API key.
-    Stripe.apiKey = "sk_test_51KnU8fAfV2NWhQf3o9mZP0gHnFc0itxILLtUym4o0uOn7S3c9hcOsCrmfqBHcp9ALmG5KMJ8xbkpgDdYvOqZ6F1c00giAkSZHr";
-
     TerminalInterface terminalInterface = new TerminalInterface();
 
 // Since the Terminal is a singleton, you can call getInstance whenever you need it.
