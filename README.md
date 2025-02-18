@@ -1,6 +1,6 @@
 # Accept in-person payments
 
-Set up the Stripe Terminal SDK so you can begin accepting in-person payments. Included are some basic build and run scripts you can use to start up the application.
+Set up the Stripe Terminal SDK so you can begin accepting in-person payments. Included are some basic build and run scripts you can use to start up the application. This integration is based off of the Terminal SDI example application here: https://docs.stripe.com/terminal/quickstart?client=java&platform=server-driven. SDI calls were replaced in favor of a Terminal Java SDK implementation.
 
 ## Running the sample
 
