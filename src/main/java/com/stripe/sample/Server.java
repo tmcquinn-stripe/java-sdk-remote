@@ -12,6 +12,7 @@ import static spark.Spark.port;
 
 import com.google.gson.Gson;
 
+import com.google.gson.JsonSyntaxException;
 import com.stripe.Stripe;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
@@ -105,51 +106,73 @@ public class Server {
     Terminal.getInstance();
 
     post("/discover_readers", (request, response) -> {
-      DiscoverReaderParams postBody = gson.fromJson(request.body(), DiscoverReaderParams.class);
-      CompletableFuture<List<com.stripe.stripeterminal.external.models.Reader>> f = new CompletableFuture<>();
+        try {
+            DiscoverReaderParams postBody = gson.fromJson(request.body(), DiscoverReaderParams.class);
+            CompletableFuture<List<com.stripe.stripeterminal.external.models.Reader>> f = new CompletableFuture<>();
 
-      f = terminalInterface.getCurrentDiscoveryList(postBody.getInstanceId());
-      return gson.toJson(f.get());
+            f = terminalInterface.getCurrentDiscoveryList(postBody.getInstanceId());
+            return gson.toJson(f.get());
+        } catch (LockedException | ExecutionException e) {
+            return gson.toJson(e.getMessage());
+        }
     });
 
 
     post("/connect_reader", (request, response) -> {
-      ReaderParams postBody = gson.fromJson(request.body(), ReaderParams.class);
-      String readerId = postBody.getReaderId();
+        try {
+            ReaderParams postBody = gson.fromJson(request.body(), ReaderParams.class);
+            String readerId = postBody.getReaderId();
 
-      CompletableFuture<com.stripe.stripeterminal.external.models.Reader> f = terminalInterface.connectToReader(readerId, postBody.getInstanceId());
+            CompletableFuture<com.stripe.stripeterminal.external.models.Reader> f = terminalInterface.connectToReader(readerId, postBody.getInstanceId());
 
-      // Need to fetch the list again to make sure everything is still there
-      // Add unlock reader retries or something
-      if (f.get() == null) {
-        return gson.toJson(f.get());
-      }
+            // Need to fetch the list again to make sure everything is still there
+            // Add unlock reader retries or something
+            if (f.get() == null) {
+              return gson.toJson(f.get());
+            }
 
-      return gson.toJson(f.get());
+            return gson.toJson(f.get());
+        } catch (LockedException | ExecutionException e) {
+          return gson.toJson(e.getMessage());
+        }
     });
 
     post("/create_payment_intent", (request, response) -> {
-      response.type("application/json");
-      PaymentIntentParams postBody = gson.fromJson(request.body(), PaymentIntentParams.class);
+        try {
+            response.type("application/json");
+            PaymentIntentParams postBody = gson.fromJson(request.body(), PaymentIntentParams.class);
 
-      CompletableFuture<com.stripe.stripeterminal.external.models.PaymentIntent> f = terminalInterface
-              .createPaymentIntent((long)postBody.getAmount(), postBody.getInstanceId());
+            CompletableFuture<com.stripe.stripeterminal.external.models.PaymentIntent> f = terminalInterface
+                    .createPaymentIntent((long)postBody.getAmount(), postBody.getInstanceId());
 
-      return gson.toJson(f.get());
+            return gson.toJson(f.get());
+        } catch (LockedException | ExecutionException e) {
+          return gson.toJson(e.getMessage());
+        }
     });
 
     post("/create_setup_intent", (request, response) -> {
-      response.type("application/json");
-      PaymentIntentParams postBody = gson.fromJson(request.body(), PaymentIntentParams.class);
+        try {
+            response.type("application/json");
+            PaymentIntentParams postBody = gson.fromJson(request.body(), PaymentIntentParams.class);
 
 
-      CompletableFuture<com.stripe.stripeterminal.external.models.SetupIntent> f = terminalInterface
-              .createSetupIntent(postBody.getInstanceId());
+            CompletableFuture<com.stripe.stripeterminal.external.models.SetupIntent> f = terminalInterface
+                    .createSetupIntent(postBody.getInstanceId());
 
 
-      return gson.toJson(f.get());
+            return gson.toJson(f.get());
+        } catch (LockedException | ExecutionException e) {
+          return gson.toJson(e.getMessage());
+        }
     });
 
+
+    post ("/get_locked_status", (request, response) -> {
+      ProcessPaymentParams postBody = gson.fromJson(request.body(), ProcessPaymentParams.class);
+
+      return gson.toJson(terminalInterface.getInstanceID());
+    });
 
     // This actually returns the PI back, so i could retrieve it, but we will just cache for now...
     post("/process_payment", (request, response) -> {

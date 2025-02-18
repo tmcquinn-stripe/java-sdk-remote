@@ -1,8 +1,26 @@
 document.addEventListener('DOMContentLoaded', function() {
 
   instanceId = Math.floor(Math.random() * 1000);
+  document.getElementById("instance-id").innerHTML = "<b>Instance ID: </b>" + instanceId;
 }, false);
 
+setInterval(pollLockedStatus, 500);
+
+function pollLockedStatus() {
+  fetch("/get_locked_status", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({instance_id: instanceId})
+  }).then((response) => {
+    response.json().then((res) => {
+      if (res == null) {
+        document.getElementById("terminal-instance-usage").innerHTML = "<b>🔓 Terminal Instance is Unlocked</b>";
+      } else {
+        document.getElementById("terminal-instance-usage").innerHTML = "<b>🔐 Terminal Instance is Locked by: </b>" + (res);
+      }
+    });
+  });
+}
 
 function discoverReader() {
   return fetch("/discover_readers", { method: "POST",

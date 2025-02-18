@@ -98,14 +98,14 @@ public class TerminalInterface {
 
         if (isLocked(instanceID)) {
             System.out.println("Is locked");
-            f.complete(null);
+            f.completeExceptionally(new LockedException());
             return f;
         } else {
             setInstanceID(instanceID);
         }
 
         DiscoveryConfiguration.InternetDiscoveryConfiguration config = new DiscoveryConfiguration.InternetDiscoveryConfiguration(
-                3, "tml_Ezk3hghjL156lq", false
+                3, null, false
         );
 
         Terminal.getInstance().discoverReaders(
@@ -130,7 +130,7 @@ public class TerminalInterface {
         CompletableFuture<com.stripe.stripeterminal.external.models.Reader> readerF = new CompletableFuture<>();
 
         if (isLocked(instanceID)) {
-            readerF.complete(null);
+            readerF.completeExceptionally(new LockedException());
             return readerF;
         }
 
@@ -143,7 +143,7 @@ public class TerminalInterface {
             System.out.println(readerId);
 
             assert reader.getLabel() != null;
-            if (reader.getLabel().equals(readerId)) {
+            if (reader.getLabel().equals(readerId.trim())) {
                 selectedReader = reader;
             }
         }
@@ -184,7 +184,7 @@ public class TerminalInterface {
         CompletableFuture<PaymentIntent> fPI = new CompletableFuture<>();
 
         if (isLocked(instanceID)) {
-            fPI.complete(null);
+            fPI.completeExceptionally(new LockedException());
             return fPI;
         }
 
@@ -232,7 +232,7 @@ public class TerminalInterface {
     public CompletableFuture<PaymentIntent> processPayment(String instanceID) {
         CompletableFuture<PaymentIntent> fPI = new CompletableFuture<>();
         if (isLocked(instanceID)) {
-            fPI.complete(null);
+            fPI.completeExceptionally(new LockedException());
             return fPI;
         }
 
@@ -276,7 +276,7 @@ public class TerminalInterface {
     public CompletableFuture<SetupIntent> createSetupIntent(String instanceID) {
         CompletableFuture<SetupIntent> fSI = new CompletableFuture<>();
         if (isLocked(instanceID)) {
-            fSI.complete(null);
+            fSI.completeExceptionally(new LockedException());
             return fSI;
         }
 
@@ -302,7 +302,7 @@ public class TerminalInterface {
     public CompletableFuture<SetupIntent> processSetup(String instanceID) {
         CompletableFuture<SetupIntent> fSI = new CompletableFuture<>();
         if (isLocked(instanceID)) {
-            fSI.complete(null);
+            fSI.completeExceptionally(new LockedException());
             return fSI;
         }
 
