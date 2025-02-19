@@ -77,6 +77,7 @@ public class TerminalInterface {
 // Create your token provider.
         CustomConnectionTokenProvider tokenProvider = new CustomConnectionTokenProvider();
 
+        CustomOfflineListener offlineListener = new CustomOfflineListener();
 // Create your application information & pass in an existing data directory for your app.
         Path path = FileSystems.getDefault().getPath(System.getProperty("user.home"), "myTestApp");
         File appDir = path.toFile();
@@ -86,8 +87,12 @@ public class TerminalInterface {
         ApplicationInformation appInfo = new ApplicationInformation("myTestApp", "1.2.3", appDir);
 
 // Pass in the listener you created, token provider, application information, your desired logging level, and an optional offline listener.
+
+
+
+        // TODO: Add offline listener
         if (!Terminal.isInitialized()) {
-            Terminal.initTerminal(tokenProvider, listener, appInfo, logLevel, null);
+            Terminal.initTerminal(tokenProvider, listener, appInfo, logLevel, offlineListener);
         }
     }
 
@@ -119,6 +124,7 @@ public class TerminalInterface {
                     @Override
                     public void onFailure(@org.jetbrains.annotations.NotNull TerminalException e) {
                         f.completeExceptionally(e);
+
                     }
                 }
         );
