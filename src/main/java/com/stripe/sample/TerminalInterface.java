@@ -125,7 +125,10 @@ public class TerminalInterface {
             );
         }
 
-
+        if (Terminal.getInstance().getConnectionStatus().equals(ConnectionStatus.DISCOVERING)) {
+            System.out.println("Already Discovering");
+            return discoverReaders;
+        }
 
         Terminal.getInstance().discoverReaders(config, discoverReaders, new Callback() {
             @Override
@@ -150,6 +153,7 @@ public class TerminalInterface {
 
         boolean isSimulated = true;
         String deviceType = "stripe_m2";
+
 
         if (isLocked(instanceID)) {
             readerF.completeExceptionally(new LockedException());

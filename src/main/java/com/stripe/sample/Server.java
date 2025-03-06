@@ -113,12 +113,13 @@ public class Server {
             //TODO make this return a discover readers
             terminalInterface.discoverReaders(postBody.getInstanceId(), postBody.getReaderType(), postBody.isSimulated());
 
-            while (terminalInterface.discoverReaders.getReaderList() == null) {
-              System.out.println("waiting");
-              Thread.sleep(500);
+            if (terminalInterface.discoverReaders.getReaderList() == null) {
+              return gson.toJson("Try Refreshing again");
+            }
+            else {
+              return gson.toJson(terminalInterface.discoverReaders.getReaderList());
             }
 
-            return gson.toJson(terminalInterface.discoverReaders.getReaderList());
         } catch (RuntimeException e) {
             return gson.toJson(e.getMessage());
         }
