@@ -109,11 +109,15 @@ public class Server {
     post("/discover_readers", (request, response) -> {
         try {
             DiscoverReaderParams postBody = gson.fromJson(request.body(), DiscoverReaderParams.class);
-            CompletableFuture<List<com.stripe.stripeterminal.external.models.Reader>> f = new CompletableFuture<>();
+            CompletableFuture<Boolean> f = new CompletableFuture<>();
 
-            f = terminalInterface.getCurrentDiscoveryList(postBody.getInstanceId(), postBody.getReaderType(), postBody.isSimulated());
+            f = terminalInterface.discoverReaders(postBody.getInstanceId(), postBody.getReaderType(), postBody.isSimulated());
 
-          System.out.println("in server: " + f.get());
+            if (DiscoverReaders.getReaderList() != null) {
+              return gson.toJson(DiscoverReaders.getReaderList());
+            }
+
+            System.out.println("in server: " + f.get());
             return gson.toJson(f.get());
         } catch (LockedException | ExecutionException e) {
             return gson.toJson(e.getMessage());

@@ -98,9 +98,9 @@ public class TerminalInterface {
     }
 
     //TODO: Split this to initiate discovery instance, and then just grab
-    public CompletableFuture<List<com.stripe.stripeterminal.external.models.Reader>> getCurrentDiscoveryList(String instanceID, String readerType, boolean isSimulated) {
+    public CompletableFuture<Boolean> discoverReaders(String instanceID, String readerType, boolean isSimulated) {
 
-        CompletableFuture<List<com.stripe.stripeterminal.external.models.Reader>> f = new CompletableFuture<>();
+        CompletableFuture<Boolean> f = new CompletableFuture<>();
 
         if (isLocked(instanceID)) {
             System.out.println("Is locked");
@@ -130,6 +130,7 @@ public class TerminalInterface {
             @Override
             public void onSuccess() {
                 System.out.println("Successful Discovery");
+                f.complete(true);
             }
 
             @Override
@@ -139,14 +140,7 @@ public class TerminalInterface {
             }
         });
 
-        int i = 0;
-        while (DiscoverReaders.getReaderList() == null) {
-            // Hacky but will wait
-            i++;
-        }
-
         System.out.println("GOT OUT OF LOOP");
-        f.complete(DiscoverReaders.getReaderList());
 
         return f;
     }
