@@ -23,7 +23,7 @@
     <dependency>
         <groupId>com.stripe</groupId>
         <artifactId>stripeterminal-java</artifactId>
-        <version>1.0.0-b9</version>
+        <version>1.0.0-b11</version>
     </dependency>
     <dependency>
         <groupId>org.jetbrains</groupId>

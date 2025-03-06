@@ -25,7 +25,8 @@ function pollLockedStatus() {
 function discoverReader() {
   return fetch("/discover_readers", { method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ instance_id: instanceId })
+    body: JSON.stringify({ instance_id: instanceId,
+    is_simulated: isSimulated, reader_type: readerType})
   }).then((response) => {
 
     return response.json();
@@ -117,12 +118,24 @@ var readerId;
 var paymentIntentId;
 var setupIntentId;
 var instanceId;
+var readerType;
+var isSimulated;
 
 // discoverREadersButton
 const createLocationButton = document.getElementById("discover-readers-button");
 createLocationButton.addEventListener("click", async (event) => {
   createLocationButton.className = "loading";
   createLocationButton.disabled = true;
+
+  document.getElementsByName("reader-type").forEach((input) => {
+    if (input.checked) {
+      readerType = input.value // USB, INTERNET, BLUETOOTH
+    }
+  })
+
+  isSimulated = (document.getElementById("simulated-selector").checked)
+
+  console.log(  document.getElementsByName("reader-type"))
   discoverReader().then((readers) => {
     createLocationButton.className = "";
     createLocationButton.disabled = false;

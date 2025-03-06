@@ -22,8 +22,6 @@ import com.stripe.exception.InvalidRequestException;
 import com.stripe.stripeterminal.Terminal;
 import com.stripe.stripeterminal.appinfo.ApplicationInformation;
 import com.stripe.stripeterminal.external.callable.InternetReaderListener;
-import com.stripe.stripeterminal.external.callable.ReaderCallback;
-import com.stripe.stripeterminal.external.callable.ReadersCallback;
 import com.stripe.stripeterminal.external.callable.TerminalListener;
 import com.stripe.stripeterminal.external.models.ConnectionConfiguration;
 import com.stripe.stripeterminal.external.models.DiscoveryConfiguration;
@@ -91,9 +89,12 @@ public class Server {
 
   static class DiscoverReaderParams {
     private String instance_id;
+    private String reader_type;
+    private boolean is_simulated;
 
     public String getInstanceId() { return instance_id; }
-
+    public String getReaderType() { return reader_type; }
+    public boolean isSimulated() { return is_simulated; }
   }
 
   public static void main(String[] args) {
@@ -110,13 +111,14 @@ public class Server {
             DiscoverReaderParams postBody = gson.fromJson(request.body(), DiscoverReaderParams.class);
             CompletableFuture<List<com.stripe.stripeterminal.external.models.Reader>> f = new CompletableFuture<>();
 
-            f = terminalInterface.getCurrentDiscoveryList(postBody.getInstanceId());
+            f = terminalInterface.getCurrentDiscoveryList(postBody.getInstanceId(), postBody.getReaderType(), postBody.isSimulated());
+
+          System.out.println("in server: " + f.get());
             return gson.toJson(f.get());
         } catch (LockedException | ExecutionException e) {
             return gson.toJson(e.getMessage());
         }
     });
-
 
     post("/connect_reader", (request, response) -> {
         try {

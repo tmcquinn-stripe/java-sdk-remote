@@ -70,7 +70,9 @@ public class TerminalInterface {
 
     public TerminalInterface() {
         TerminalListener listener = new CustomTerminalListener();
+        CustomMobileReaderListener mobileReaderListener = new CustomMobileReaderListener();
 
+        SimulatorConfiguration simulatorConfiguration = new SimulatorConfiguration(SimulateReaderUpdate.REQUIRED, new SimulatedCard(SimulatedCardType.VISA), 0L, false);
 // Choose the level of messages that should be logged to your console.
         LogLevel logLevel = LogLevel.VERBOSE;
 
@@ -86,18 +88,17 @@ public class TerminalInterface {
         }
         ApplicationInformation appInfo = new ApplicationInformation("myTestApp", "1.2.3", appDir);
 
-// Pass in the listener you created, token provider, application information, your desired logging level, and an optional offline listener.
-
-
-
         // TODO: Add offline listener
         if (!Terminal.isInitialized()) {
             Terminal.initTerminal(tokenProvider, listener, appInfo, logLevel, offlineListener);
+
+            // TODO: Add a function to set Simulator Configuration
+            Terminal.getInstance().setSimulatorConfiguration(simulatorConfiguration);
         }
     }
 
-    public CompletableFuture<List<com.stripe.stripeterminal.external.models.Reader>> getCurrentDiscoveryList(String instanceID) {
-
+    //TODO: Split this to initiate discovery instance, and then just grab
+    public CompletableFuture<List<com.stripe.stripeterminal.external.models.Reader>> getCurrentDiscoveryList(String instanceID, String readerType, boolean isSimulated) {
 
         CompletableFuture<List<com.stripe.stripeterminal.external.models.Reader>> f = new CompletableFuture<>();
 
@@ -109,25 +110,45 @@ public class TerminalInterface {
             setInstanceID(instanceID);
         }
 
-        DiscoveryConfiguration.InternetDiscoveryConfiguration config = new DiscoveryConfiguration.InternetDiscoveryConfiguration(
-                3, null, false
-        );
+        DiscoveryConfiguration config = null;
+        System.out.println("Is simulated?: " + isSimulated);
+        // FEEDBACK: kind of wierd returning simulator list of on error even though simulator=false
+        if (readerType.equals("USB")) {
+            config = new DiscoveryConfiguration.UsbDiscoveryConfiguration(0, isSimulated);
 
-        Terminal.getInstance().discoverReaders(
-                config,
-                new ReadersCallback() {
-                    @Override
-                    public void onSuccess(@org.jetbrains.annotations.NotNull List<com.stripe.stripeterminal.external.models.Reader> list) {
-                        f.complete(list);
-                    }
+        } else if (readerType.equals("INTERNET")) {
+            config = new DiscoveryConfiguration.InternetDiscoveryConfiguration(
+                    3, null, true
+            );
+        }
 
-                    @Override
-                    public void onFailure(@org.jetbrains.annotations.NotNull TerminalException e) {
-                        f.completeExceptionally(e);
 
-                    }
-                }
-        );
+        DiscoverReaders dr = new DiscoverReaders();
+
+        Terminal.getInstance().discoverReaders(config, dr, new Callback() {
+            @Override
+            public void onSuccess() {
+                System.out.println("Successful Discovery");
+            }
+
+            @Override
+            public void onFailure(@NotNull TerminalException e) {
+                System.out.println("fail discovery");
+                f.completeExceptionally(e);
+            }
+        });
+
+        int i = 0;
+        while (DiscoverReaders.getReaderList() == null) {
+            // Hacky but will wait
+            i++;
+            if (i%100 == 0) {
+                System.out.print('.');
+            }
+        }
+
+        f.complete(DiscoverReaders.getReaderList());
+
         return f;
     }
 
@@ -135,22 +156,37 @@ public class TerminalInterface {
     public CompletableFuture<com.stripe.stripeterminal.external.models.Reader> connectToReader(String readerId, String instanceID) throws ExecutionException, InterruptedException {
         CompletableFuture<com.stripe.stripeterminal.external.models.Reader> readerF = new CompletableFuture<>();
 
+        boolean isSimulated = true;
+        String deviceType = "stripe_m2";
+
         if (isLocked(instanceID)) {
             readerF.completeExceptionally(new LockedException());
             return readerF;
         }
 
-        CompletableFuture<List<com.stripe.stripeterminal.external.models.Reader>> f = getCurrentDiscoveryList(instanceID);
-        List<com.stripe.stripeterminal.external.models.Reader> readers = f.get();
+        // Changed this to just ask the listener. Should make the listener a global var?
+        List<com.stripe.stripeterminal.external.models.Reader> readers = DiscoverReaders.getReaderList();
+
+        System.out.println("[CONNECT READERS LIST]" + readers);
         com.stripe.stripeterminal.external.models.Reader selectedReader = null;
 
-        for (com.stripe.stripeterminal.external.models.Reader reader : readers) {
-            System.out.println(reader.getLabel());
-            System.out.println(readerId);
+        if (isSimulated) {
+            for (com.stripe.stripeterminal.external.models.Reader reader : readers) {
+                System.out.println(reader.getDeviceType().getDeviceName());
+                if (reader.getDeviceType().getDeviceName().equals(deviceType)) {
+                    selectedReader = reader;
+                }
+            }
+        }
+        else {
+            for (com.stripe.stripeterminal.external.models.Reader reader : readers) {
+                System.out.println(reader.getLabel());
+                System.out.println(readerId);
 
-            assert reader.getLabel() != null;
-            if (reader.getLabel().equals(readerId.trim())) {
-                selectedReader = reader;
+                assert reader.getLabel() != null;
+                if (reader.getLabel().equals(readerId.trim())) {
+                    selectedReader = reader;
+                }
             }
         }
 
@@ -161,7 +197,13 @@ public class TerminalInterface {
             return readerF;
         }
 
-        ConnectionConfiguration.InternetConnectionConfiguration config = new ConnectionConfiguration.InternetConnectionConfiguration(false, new CustomInternetReaderListener());
+        ConnectionConfiguration config = null;
+        if (isSimulated) {
+            config = new ConnectionConfiguration.UsbConnectionConfiguration("tml_simulated", false, new CustomMobileReaderListener());
+
+        } else {
+             config = new ConnectionConfiguration.InternetConnectionConfiguration(false, new CustomInternetReaderListener());
+        }
 
         Terminal.getInstance().connectReader(
                 selectedReader,
@@ -246,6 +288,9 @@ public class TerminalInterface {
                 .setMoto(false)
                 .build();
 
+        // DOC-ISSUE: ConfirmConfiguration not in public docs but required: https://docs.corp.stripe.com/terminal/payments/collect-card-payment?terminal-sdk-platform=java#confirm-payment. allow for only 2 params to be passed.
+        ConfirmConfiguration confirmConfiguration = new ConfirmConfiguration.Builder().build();
+
         Cancelable cancelable = Terminal.getInstance().collectPaymentMethod(
             getCurrentPaymentIntent(), collectConfiguration, new PaymentIntentCallback() {
                 @Override
@@ -257,6 +302,7 @@ public class TerminalInterface {
                                 @Override
                                 public void onSuccess(@NotNull PaymentIntent paymentIntent) {
                                     fPI.complete(paymentIntent);
+                                    paymentIntent.getPaymentMethod().getCardPresentDetails().getWallet();
                                 }
 
                                 @Override
@@ -264,7 +310,7 @@ public class TerminalInterface {
                                     System.out.println("Something went wrong confirming the PaymentIntent");
                                     fPI.completeExceptionally(e);
                                 }
-                            }
+                            }, confirmConfiguration
                     );
                 }
 

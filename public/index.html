@@ -13,6 +13,42 @@
     <div class="container-fluid h-100">
       <div class="row h-100">
         <div class="col-sm-6 offset h-100">
+          <div class="row title">Settings</div>
+
+          <div id="reader-type-header">
+            <b >Reader Type</b>
+          </div>
+          <div class="row margin pad">
+<!--            TODO: ADD Reader Type-->
+            <div class="radio-wrapper-12">
+              <label for="usb-reader">
+                <input id="usb-reader" type="radio" name="reader-type" checked="checked" value="USB">
+                <span class="text">USB</span>
+              </label>
+            </div>
+            <div class="radio-wrapper-12">
+              <label for="internet-reader">
+                <input id="internet-reader" type="radio" name="reader-type" value="INTERNET">
+                <span class="text">Internet</span>
+              </label>
+            </div>
+            <div class="radio-wrapper-12">
+              <label for="bt-reader">
+                <input id="bt-reader" type="radio" name="reader-type" value="BLUETOOTH">
+                <span class="text">Bluetooth</span>
+              </label>
+            </div>
+          </div>
+          <div class="row margin pad">
+            <div class="checkbox-wrapper-2">
+              <input id="simulated-selector" name="simulated-selector" type="checkbox" class="sc-gJwTLC ikxBAC">
+            </div>
+            <label class="checkbox-label" for="simulated-selector">Simulated Reader</label>
+
+<!--            TODO: Add Simulator Settings-->
+          </div>
+
+          <hr/>
           <div class="row title">Reader Actions</div>
           <div class="row margin pad">
             <button id="discover-readers-button">
