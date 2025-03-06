@@ -111,14 +111,14 @@ public class Server {
             DiscoverReaderParams postBody = gson.fromJson(request.body(), DiscoverReaderParams.class);
 
             //TODO make this return a discover readers
-            DiscoverReaders dr = terminalInterface.discoverReaders(postBody.getInstanceId(), postBody.getReaderType(), postBody.isSimulated());
+            terminalInterface.discoverReaders(postBody.getInstanceId(), postBody.getReaderType(), postBody.isSimulated());
 
-            while (dr.getReaderList() == null) {
+            while (terminalInterface.discoverReaders.getReaderList() == null) {
               System.out.println("waiting");
               Thread.sleep(500);
             }
 
-            return gson.toJson(dr.getReaderList());
+            return gson.toJson(terminalInterface.discoverReaders.getReaderList());
         } catch (RuntimeException e) {
             return gson.toJson(e.getMessage());
         }
