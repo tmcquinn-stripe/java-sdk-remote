@@ -143,9 +143,9 @@ public class TerminalInterface {
         while (DiscoverReaders.getReaderList() == null) {
             // Hacky but will wait
             i++;
-
         }
 
+        System.out.println("GOT OUT OF LOOP");
         f.complete(DiscoverReaders.getReaderList());
 
         return f;

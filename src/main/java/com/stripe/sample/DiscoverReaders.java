@@ -20,6 +20,7 @@ public class DiscoverReaders implements DiscoveryListener {
     public void onUpdateDiscoveredReaders(@NotNull List<Reader> readers) {
         readersList = readers;
 
+        System.out.println(DiscoverReaders.getReaderList());
         // In your app, display the discovered reader(s) to the user.
         // Call `connectReader` after the user selects a reader to connect to.
         // IDK what this is doing to be honest.
