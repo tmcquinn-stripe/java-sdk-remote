@@ -166,7 +166,7 @@ public class TerminalInterface {
         System.out.println("[CONNECT READERS LIST]" + readers);
         com.stripe.stripeterminal.external.models.Reader selectedReader = null;
 
-        if (isSimulated) {
+        if (readerType.equals("USB")) {
             for (com.stripe.stripeterminal.external.models.Reader reader : readers) {
                 System.out.println(reader.getDeviceType().getDeviceName());
                 if (reader.getDeviceType().getDeviceName().equals(deviceType)) {

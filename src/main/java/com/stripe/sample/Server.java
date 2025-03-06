@@ -114,10 +114,11 @@ public class Server {
             terminalInterface.discoverReaders(postBody.getInstanceId(), postBody.getReaderType(), postBody.isSimulated());
 
             if (terminalInterface.discoverReaders.getReaderList() == null) {
+              //  TODO: Add loop back, was issue with gson private attributes, not logic
               return gson.toJson("Try Refreshing again");
             }
             else {
-              return gson.toJson(terminalInterface.discoverReaders.getReaderList());
+              return gson.toJson(terminalInterface.discoverReaders.getReaderList().toString());
             }
 
         } catch (RuntimeException e) {
@@ -134,11 +135,13 @@ public class Server {
 
             // Need to fetch the list again to make sure everything is still there
             // Add unlock reader retries or something
+
+          // TODO: FEedback for some reason gson doesn't like the Reader Object and crashes
             if (f.get() == null) {
-              return gson.toJson(f.get());
+              return gson.toJson(f.get().toString());
             }
 
-            return gson.toJson(f.get());
+            return gson.toJson(f.get().toString());
         } catch (LockedException | ExecutionException e) {
           return gson.toJson(e.getMessage());
         }
