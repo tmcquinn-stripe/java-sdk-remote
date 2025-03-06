@@ -116,7 +116,7 @@ public class TerminalInterface {
         if (readerType.equals("USB")) {
             config = new DiscoveryConfiguration.UsbDiscoveryConfiguration(0, isSimulated);
 
-        } else if (readerType.equals("INTERNET")) {
+        } else {
             config = new DiscoveryConfiguration.InternetDiscoveryConfiguration(
                     3, null, true
             );
@@ -142,9 +142,7 @@ public class TerminalInterface {
         while (DiscoverReaders.getReaderList() == null) {
             // Hacky but will wait
             i++;
-            if (i%100 == 0) {
-                System.out.print('.');
-            }
+
         }
 
         f.complete(DiscoverReaders.getReaderList());
@@ -199,7 +197,7 @@ public class TerminalInterface {
 
         ConnectionConfiguration config = null;
         if (isSimulated) {
-            config = new ConnectionConfiguration.UsbConnectionConfiguration("tml_simulated", false, new CustomMobileReaderListener());
+            config = new ConnectionConfiguration.UsbConnectionConfiguration("tml_F1tnASMOFaT8aA", false, new CustomMobileReaderListener());
 
         } else {
              config = new ConnectionConfiguration.InternetConnectionConfiguration(false, new CustomInternetReaderListener());
