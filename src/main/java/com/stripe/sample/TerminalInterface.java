@@ -105,7 +105,7 @@ public class TerminalInterface {
         if (isLocked(instanceID)) {
             System.out.println("Is locked");
            // f.completeExceptionally(new LockedException());
-            return false;
+            return;
         } else {
             setInstanceID(instanceID);
         }
