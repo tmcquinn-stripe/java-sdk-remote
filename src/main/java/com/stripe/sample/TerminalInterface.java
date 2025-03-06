@@ -98,14 +98,14 @@ public class TerminalInterface {
     }
 
     //TODO: Split this to initiate discovery instance, and then just grab
-    public CompletableFuture<Boolean> discoverReaders(String instanceID, String readerType, boolean isSimulated) {
+    public void discoverReaders(String instanceID, String readerType, boolean isSimulated) {
 
-        CompletableFuture<Boolean> f = new CompletableFuture<>();
+        //CompletableFuture<Boolean> f = new CompletableFuture<>();
 
         if (isLocked(instanceID)) {
             System.out.println("Is locked");
-            f.completeExceptionally(new LockedException());
-            return f;
+           // f.completeExceptionally(new LockedException());
+            return false;
         } else {
             setInstanceID(instanceID);
         }
@@ -130,19 +130,17 @@ public class TerminalInterface {
             @Override
             public void onSuccess() {
                 System.out.println("Successful Discovery");
-                f.complete(true);
+               // f.complete(true);
             }
 
             @Override
             public void onFailure(@NotNull TerminalException e) {
                 System.out.println("fail discovery");
-                f.completeExceptionally(e);
             }
         });
 
         System.out.println("GOT OUT OF LOOP");
 
-        return f;
     }
 
     //readerId is actually the reader label

@@ -109,17 +109,17 @@ public class Server {
     post("/discover_readers", (request, response) -> {
         try {
             DiscoverReaderParams postBody = gson.fromJson(request.body(), DiscoverReaderParams.class);
-            CompletableFuture<Boolean> f = new CompletableFuture<>();
 
-            f = terminalInterface.discoverReaders(postBody.getInstanceId(), postBody.getReaderType(), postBody.isSimulated());
+            //TODO make this return a discover readers
+            terminalInterface.discoverReaders(postBody.getInstanceId(), postBody.getReaderType(), postBody.isSimulated());
 
-            if (DiscoverReaders.getReaderList() != null) {
-              return gson.toJson(DiscoverReaders.getReaderList());
+            while (DiscoverReaders.getReaderList() == null) {
+              System.out.println("waiting");
+
             }
 
-            System.out.println("in server: " + f.get());
-            return gson.toJson(f.get());
-        } catch (LockedException | ExecutionException e) {
+            return gson.toJson(DiscoverReaders.getReaderList());
+        } catch (RuntimeException e) {
             return gson.toJson(e.getMessage());
         }
     });
