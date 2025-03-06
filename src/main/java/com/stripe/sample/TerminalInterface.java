@@ -114,6 +114,7 @@ public class TerminalInterface {
         System.out.println("Is simulated?: " + isSimulated);
         // FEEDBACK: kind of wierd returning simulator list of on error even though simulator=false
         if (readerType.equals("USB")) {
+            System.out.println("USBN !!!");
             config = new DiscoveryConfiguration.UsbDiscoveryConfiguration(0, isSimulated);
 
         } else {
