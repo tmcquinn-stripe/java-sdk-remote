@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class TerminalInterface {
+    public DiscoverReaders discoverReaders;
     public PaymentIntent currentPaymentIntent;
 
     public SetupIntent getCurrentSetupIntent() {
@@ -80,6 +81,7 @@ public class TerminalInterface {
         CustomConnectionTokenProvider tokenProvider = new CustomConnectionTokenProvider();
 
         CustomOfflineListener offlineListener = new CustomOfflineListener();
+        discoverReaders = new DiscoverReaders();
 // Create your application information & pass in an existing data directory for your app.
         Path path = FileSystems.getDefault().getPath(System.getProperty("user.home"), "myTestApp");
         File appDir = path.toFile();
@@ -98,14 +100,14 @@ public class TerminalInterface {
     }
 
     //TODO: Split this to initiate discovery instance, and then just grab
-    public void discoverReaders(String instanceID, String readerType, boolean isSimulated) {
+    public DiscoverReaders discoverReaders(String instanceID, String readerType, boolean isSimulated) {
 
         //CompletableFuture<Boolean> f = new CompletableFuture<>();
 
         if (isLocked(instanceID)) {
             System.out.println("Is locked");
            // f.completeExceptionally(new LockedException());
-            return;
+            return null;
         } else {
             setInstanceID(instanceID);
         }
@@ -124,9 +126,8 @@ public class TerminalInterface {
         }
 
 
-        DiscoverReaders dr = new DiscoverReaders();
 
-        Terminal.getInstance().discoverReaders(config, dr, new Callback() {
+        Terminal.getInstance().discoverReaders(config, discoverReaders, new Callback() {
             @Override
             public void onSuccess() {
                 System.out.println("Successful Discovery");
@@ -140,7 +141,7 @@ public class TerminalInterface {
         });
 
         System.out.println("GOT OUT OF LOOP");
-
+        return discoverReaders;
     }
 
     //readerId is actually the reader label
@@ -156,7 +157,7 @@ public class TerminalInterface {
         }
 
         // Changed this to just ask the listener. Should make the listener a global var?
-        List<com.stripe.stripeterminal.external.models.Reader> readers = DiscoverReaders.getReaderList();
+        List<com.stripe.stripeterminal.external.models.Reader> readers = discoverReaders.getReaderList();
 
         System.out.println("[CONNECT READERS LIST]" + readers);
         com.stripe.stripeterminal.external.models.Reader selectedReader = null;

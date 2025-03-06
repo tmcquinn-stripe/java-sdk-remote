@@ -14,19 +14,19 @@ import java.util.List;
 public class DiscoverReaders implements DiscoveryListener {
 
     Cancelable discoverCancelable = null;
-    public static List<Reader> readersList = null;
+    public List<Reader> readersList = null;
 
     @Override
     public void onUpdateDiscoveredReaders(@NotNull List<Reader> readers) {
         readersList = readers;
 
-        System.out.println(DiscoverReaders.getReaderList());
+        System.out.println(getReaderList());
         // In your app, display the discovered reader(s) to the user.
         // Call `connectReader` after the user selects a reader to connect to.
         // IDK what this is doing to be honest.
     }
 
-    public static List<Reader> getReaderList() {
+    public List<Reader> getReaderList() {
         return readersList;
     }
 }
