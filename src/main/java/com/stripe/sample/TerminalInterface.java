@@ -196,7 +196,7 @@ public class TerminalInterface {
 
         ConnectionConfiguration config = null;
         if (isSimulated) {
-            config = new ConnectionConfiguration.UsbConnectionConfiguration("tml_F1tnASMOFaT8aA", false, new CustomMobileReaderListener());
+            config = new ConnectionConfiguration.UsbConnectionConfiguration("tml_F1tnASMOFaT8aA", true, new CustomMobileReaderListener());
 
         } else {
              config = new ConnectionConfiguration.InternetConnectionConfiguration(false, new CustomInternetReaderListener());
