@@ -73,7 +73,7 @@ public class TerminalInterface {
         TerminalListener listener = new CustomTerminalListener();
         CustomMobileReaderListener mobileReaderListener = new CustomMobileReaderListener();
 
-        SimulatorConfiguration simulatorConfiguration = new SimulatorConfiguration(SimulateReaderUpdate.REQUIRED, new SimulatedCard(SimulatedCardType.VISA), 0L, false);
+       SimulatorConfiguration simulatorConfiguration = new SimulatorConfiguration(SimulateReaderUpdate.NONE, new SimulatedCard(SimulatedCardType.CHARGE_DECLINED_EXPIRED_CARD), 0L, false, new SimulatedCollectInputsResult.SimulatedCollectInputsResultSucceeded());
 // Choose the level of messages that should be logged to your console.
         LogLevel logLevel = LogLevel.VERBOSE;
 
@@ -153,6 +153,7 @@ public class TerminalInterface {
 
         boolean isSimulated = true;
         String deviceType = "stripe_m2";
+        String readerType="USB";
 
 
         if (isLocked(instanceID)) {
@@ -328,6 +329,7 @@ public class TerminalInterface {
             return fSI;
         }
 
+        System.out.println(Terminal.getInstance().getSimulatorConfiguration());
         SetupIntentParameters params = new SetupIntentParameters.Builder().build();
 
         Terminal.getInstance().createSetupIntent(params, new SetupIntentCallback() {

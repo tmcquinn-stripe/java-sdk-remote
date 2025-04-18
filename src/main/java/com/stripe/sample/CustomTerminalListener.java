@@ -3,6 +3,7 @@ package com.stripe.sample;
 import com.stripe.stripeterminal.external.callable.TerminalListener;
 import com.stripe.stripeterminal.external.models.ConnectionStatus;
 import com.stripe.stripeterminal.external.models.PaymentStatus;
+import com.stripe.stripeterminal.external.models.Reader;
 
 public class CustomTerminalListener implements TerminalListener {
     @Override
